@@ -1,0 +1,20 @@
+[
+    {
+        "link": "https://hh.ru/vacancy/77716464?from=vacancy_search_list&query=python",
+        "salary": "от 250 000 руб.",
+        "company": "WorkinGeeks",
+        "city": "Москва"
+    },
+    {
+        "link": "https://hh.ru/vacancy/78405077?from=vacancy_search_list&query=python",
+        "salary": "80 000 – 120 000 руб.",
+        "company": "ООО Лаборатория Наносемантика",
+        "city": "Москва"
+    },
+    {
+        "link": "https://hh.ru/vacancy/78431345?from=vacancy_search_list&query=python",
+        "salary": "100 000 – 200 000 руб.",
+        "company": "Энсайн (Nsign.ru)",
+        "city": "Москва"
+    }
+]
