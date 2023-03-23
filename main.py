@@ -22,7 +22,10 @@ for vacancy in vacancies:
     company_name = vacancy.find(class_="vacancy-serp-item__meta-info-company").find('a')
     city = vacancy.find('div', {'data-qa': 'vacancy-serp__vacancy-address'})
     salary = vacancy.find('span', {'data-qa': 'vacancy-serp__vacancy-compensation'})
-    print(city)
+    if salary is not None:
+        print(salary.text)
+    else:
+        print("Данные о зарплате не найдены")
 
 
     # Проверяем условия поиска:
