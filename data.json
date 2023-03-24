@@ -1,0 +1,32 @@
+[
+    {
+        "link": "https://hh.ru/vacancy/78090926",
+        "salary": "от 150 000 руб. до вычета налогов",
+        "name": "Creative",
+        "city": "Санкт-Петербург"
+    },
+    {
+        "link": "https://hh.ru/vacancy/78361098",
+        "salary": "з/п не указана",
+        "name": "AWG",
+        "city": "Москва"
+    },
+    {
+        "link": "https://hh.ru/vacancy/76102661",
+        "salary": "з/п не указана",
+        "name": "ООО Датаджайл",
+        "city": "Санкт-Петербург"
+    },
+    {
+        "link": "https://hh.ru/vacancy/78333669",
+        "salary": "з/п не указана",
+        "name": "Ай-Теко (I-Teco)",
+        "city": "Москва"
+    },
+    {
+        "link": "https://hh.ru/vacancy/77849421",
+        "salary": "от 100 000 руб. на руки",
+        "name": "ООО Каналсервис",
+        "city": "Санкт-Петербург"
+    }
+]

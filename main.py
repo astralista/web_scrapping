@@ -2,55 +2,93 @@ import requests
 from bs4 import BeautifulSoup
 from fake_headers import Headers
 import json
+import time
 
-HOST = 'https://hh.ru/'
+keywords = ['Django', 'Flask']
 
 def get_headers():
     return Headers(browser="firefox", os="win").generate()
 
-def get_vacancy_list():
-    uri = f'{HOST}search/vacancy'
-    params = {
-        'text': ['Python','Django','Flask'],
-        'area': [1, 2],
-        'currency_code': None
-    }
-    return requests.get(uri,headers=get_headers(),params=params).text
+def get_links(text):
+    data = requests.get(
+        url=f'https://hh.ru/search/vacancy?area=1&area=2&search_field=name&search_field=company_name&search_field=description&enable_snippets=true&text={text}&page=1',
+        headers=get_headers()
+    )
+    if data.status_code != 200:
+        return
+    soup = BeautifulSoup(data.content, 'lxml')
 
-# ключевики для поиска по критерию:
-keywords = ('Django', 'Flask')
+    # если надо будет обойти все страницы поиска
+    # используй page_count в range цикла ниже:
+    # try:
+    #     page_count = int(soup.find('div', attrs={'class': 'pager'}).find_all('span', recursive=False)[-1].find('a').find('span').text)
+    # except:
+    #     return
 
-def parsing_vacancy():
-    soup = BeautifulSoup(get_vacancy_list(), features='lxml')
-    all_vac = soup.find('div', class_='vacancy-serp-content')
-    vacancy_list = soup.find_all('div', class_='vacancy-serp-item__layout')
-    got_it = []
-
-    for vacancy in vacancy_list:
+    for page in range(2):
         try:
-            vacancy_description = vacancy.find('div', attrs={'data-qa': 'vacancy-serp__vacancy_snippet_requirement'}).text
-        except AttributeError:
-            continue
-
-        if set(keywords).issubset(vacancy_description.split()):
-            city = vacancy.find('div', attrs={'data-qa': 'vacancy-serp__vacancy-address'}).text
-            link_search = vacancy.find('a', class_='serp-item__title')
-            link = link_search['href']
-            company = vacancy.find('a', class_='bloko-link bloko-link_kind-tertiary').text.replace('\xa0', ' ')
-            try:
-                salary = vacancy.find('span', class_='bloko-header-section-3').text.replace('\u202f', ' ')
-            except AttributeError:
+            data = requests.get(
+                url=f'https://hh.ru/search/vacancy?area=1&area=2&search_field=name&search_field=company_name&search_field=description&enable_snippets=true&text={text}&page={page}',
+                headers=get_headers()
+            )
+            if data.status_code != 200:
                 continue
-            vacancy_info = {
-                'link': link,
-                'salary': salary,
-                'company': company,
-                'city': city
-            }
-            got_it.append(vacancy_info)
-        return got_it
+            soup = BeautifulSoup(data.content, 'lxml')
+            for a in soup.find_all('a', attrs={'class': 'serp-item__title'}):
+                yield f"{a.attrs['href'].split('?')[0]}"
+        except Exception as e:
+            print(f'{e}')
+        time.sleep(1)
+def get_vacancy(link):
+    data = requests.get(
+        url=link,
+        headers=get_headers()
+    )
+    if data.status_code != 200:
+        return
+    soup = BeautifulSoup(data.content, 'lxml')
+    # ищем тэги
+    try:
+        tags = [tag.text for tag in soup.find(attrs={'class': 'bloko-tag-list'}).find_all(attrs={'class': 'bloko-tag__section_text'})]
+    except:
+        tags = []
+
+    for tag in tags:
+        for keyword in keywords:
+            if keyword.lower() == tag.lower():
+                # если ключи совпали, добавляем данные
+                try:
+                    # название компании
+                    name = soup.find('div', attrs={'class': 'vacancy-company-details'}).text.replace('\xa0', ' ')
+                except:
+                    name = ''
+                try:
+                    # ветка зарплат
+                    salary = soup.find(attrs={'class': 'bloko-header-section-2 bloko-header-section-2_lite'}).text.replace('\xa0', ' ')
+                except:
+                    salary = ''
+                try:
+                    # город
+                    city = soup.find('div', attrs={'data-qa': 'vacancy-serp__vacancy-address'}).text.split(',')[0]
+                except:
+                    city = ''
+
+                vacancy = {
+                    'link': link,
+                    'salary': salary,
+                    'name': name,
+                    'city': city
+                }
+                return vacancy
+    return None
+
 
 if __name__ == '__main__':
-    write_it = parsing_vacancy()
-    with open('write_it.json', 'w', encoding='utf-8') as outfile:
-        json.dump(write_it, outfile, ensure_ascii=False, indent=4)
+    data = []
+    for i in get_links('python'):
+        vacancy = get_vacancy(i)
+        if vacancy is not None:
+            data.append(vacancy)
+        time.sleep(1)
+        with open('data.json', 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=4, ensure_ascii=False)

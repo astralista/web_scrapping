@@ -1,7 +1,6 @@
 import requests
 import json
 import time
-import os
 
 def getPage(page=0):
     """
@@ -39,10 +38,10 @@ for page in range(0, 20):
         json.dump(jsObj, outfile, ensure_ascii=False, indent=4)
 
     # Проверка на последнюю страницу, если вакансий меньше 2000
-    if (jsObj['pages'] - page) <= 1:
-        break
+    # if (jsObj['pages'] - page) <= 1:
+    #     break
 
     # Необязательная задержка, но чтобы не нагружать сервисы hh, оставим. 5 сек мы может подождать
     time.sleep(0.25)
 
-print('Старницы поиска собраны')
+print('Парсинг завершен. Файл сформирован.')
