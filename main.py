@@ -39,6 +39,7 @@ def get_links(text):
         except Exception as e:
             print(f'{e}')
         time.sleep(1)
+
 def get_vacancy(link):
     data = requests.get(
         url=link,
